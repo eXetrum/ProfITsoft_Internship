@@ -60,11 +60,15 @@
 ## Сборка
 
 ```shell
-assymbly.bat
-```
-
+mvn compile assembly:single
+```  
+или  
+```shell
+assembly.bat
+```  
+  
 ## Запуск
-```console
+```shell
 java -jar target\BooksAnalyzer.jar <json folder path> <attribute name>
 	<attribute name>: title, subject, author, publish_year
 ```
