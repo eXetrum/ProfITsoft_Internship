@@ -1,4 +1,3 @@
-# ProfITsoft_Internship
-ProfITsoft FullStack Developer 2024 Intership
+# ProfITsoft Internship, FullStack Developer 2024
 
 [Task_001](Task_001)
