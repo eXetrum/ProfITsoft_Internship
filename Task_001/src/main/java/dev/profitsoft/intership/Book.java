@@ -8,45 +8,45 @@ public class Book {
     private String title;
     private int publishYear;
     private ArrayList<Author> authors = new ArrayList<>();
-    private ArrayList<String> categories = new ArrayList<>();
+    private ArrayList<String> subjects = new ArrayList<>();
 
     public Book() {
         this("", DEFAULT_PUB_YEAR, new ArrayList<>(), new ArrayList<>());
     }
 
-    public Book(String title, int publishYear, ArrayList<Author> authors, ArrayList<String> categories) {
+    public Book(String title, int publishYear, ArrayList<Author> authors, ArrayList<String> subjects) {
         this.title = title;
         this.publishYear = publishYear;
         this.authors = authors;
-        this.categories = categories;
+        this.subjects = subjects;
     }
     public void addAuthor(Author author) { authors.add(author); }
-    public void addCategory(String category) { categories.add(category); }
+    public void addCategory(String category) { subjects.add(category); }
 
     public void setTitle(String title) { this.title = title; }
     public void setPublishYear(int publishYear) { this.publishYear = publishYear; }
     public void setAuthors(ArrayList<Author> authors) { this.authors = authors; }
-    public void setCategories(ArrayList<String> categories) { this.categories = categories; }
+    public void setSubjects(ArrayList<String> subjects) { this.subjects = subjects; }
 
     public String getTitle() { return title; }
     public int getPublishYear() { return publishYear; }
     public ArrayList<Author> getAuthors() { return authors; }
-    public ArrayList<String> getCategories() { return categories; }
+    public ArrayList<String> getSubjects() { return subjects; }
 
     public boolean isValidObject() {
         return title != null && !title.isEmpty()
                 && publishYear != DEFAULT_PUB_YEAR
                 && authors != null && !authors.isEmpty()
-                && categories != null && !categories.isEmpty();
+                && subjects != null && !subjects.isEmpty();
     }
 
     @Override
     public String toString() {
-        return String.format("Title: %s\nPublish year: %d\nAuthor(s): [%s]\nCategories: [%s]\n",
+        return String.format("Title: %s\nPublish year: %d\nAuthor(s): [%s]\nSubject(s): [%s]\n",
                 title,
                 publishYear,
                 authors.stream().map(Author::toString).collect(Collectors.joining("; ")),
-                String.join("; ", categories)
+                String.join("; ", subjects)
         );
     }
 }
