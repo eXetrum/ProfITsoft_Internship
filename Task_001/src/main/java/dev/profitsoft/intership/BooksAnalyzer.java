@@ -63,7 +63,6 @@ public class BooksAnalyzer {
 
             // Process till end of array/file
             while (token != null && token != JsonToken.END_ARRAY) { // Last token must be "array end"
-                // "{"
                 if (token != JsonToken.START_OBJECT) {
                     System.out.println("Warning: processing entry failed, expected json object(s). Skip");
                     token = parser.nextToken();
