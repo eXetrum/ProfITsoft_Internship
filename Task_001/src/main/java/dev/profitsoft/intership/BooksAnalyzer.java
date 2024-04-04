@@ -53,7 +53,7 @@ public class BooksAnalyzer {
                 return;
             }
 
-            // Process till end of array/file
+            // Just in case if this file is empty
             token = parser.nextToken();
             if(token == JsonToken.END_ARRAY) {
                 System.err.printf("Error: processing file \"%s\" failed, unexpected end of array\n",
@@ -61,8 +61,8 @@ public class BooksAnalyzer {
                 return;
             }
 
+            // Process till end of array/file
             while (token != null && token != JsonToken.END_ARRAY) { // Last token must be "array end"
-
                 // "{"
                 if (token != JsonToken.START_OBJECT) {
                     System.out.println("Warning: processing entry failed, expected json object(s). Skip");
@@ -77,22 +77,13 @@ public class BooksAnalyzer {
                     // "filed name" :
                     if (token == JsonToken.FIELD_NAME) {
                         String fieldName = parser.getCurrentName();
-                        //System.out.print("[" + fieldName + "]: ");
-
                         // Move to the field value
                         token = parser.nextToken();
                         // : "field value(s)"
-                        if (token == JsonToken.VALUE_STRING) {
-                            String value = parser.getText();
-                            if("title".equals(fieldName))
-                                book.setTitle(value);
-
-                            //System.out.println(value);
-                        } else if (token == JsonToken.VALUE_NUMBER_INT
-                                && "publish_year".equals(fieldName)) {
-                            int publishYear = parser.getNumberValue().intValue();
-                            book.setPublishYear(publishYear);
-                            //System.out.println(publishYear);
+                        if (token == JsonToken.VALUE_STRING && "title".equals(fieldName)) {
+                            book.setTitle(parser.getText());
+                        } else if (token == JsonToken.VALUE_NUMBER_INT && "publish_year".equals(fieldName)) {
+                            book.setPublishYear(parser.getNumberValue().intValue());
                         } else if (token == JsonToken.START_ARRAY &&
                                 ("subject".equals(fieldName) || "authors".equals(fieldName))) {
                             // "subject" / "authors":
@@ -106,7 +97,6 @@ public class BooksAnalyzer {
                                     else
                                         book.addCategory(value);
                                 }
-
                                 token = parser.nextToken();
                             }
                             // "]"
