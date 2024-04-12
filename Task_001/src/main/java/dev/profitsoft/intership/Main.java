@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
-        if(args.length != 2) {
+        if(args.length < 2) {
             System.out.println("Usage: java -jar BooksAnalyzer.jar <json folder path> <attribute name>");
             Class<?> bookClass = Book.class;
             System.out.println("\t<attribute name>: " +
@@ -19,6 +19,10 @@ public class Main {
             return;
         }
 
-        BooksAnalyzer.run(args[0], args[1]);
+        BooksAnalyzer.run(args[0], args[1],
+                args.length > 2 && Arrays.asList(args).subList(2, args.length)
+                        .stream()
+                        .anyMatch(x -> x.equalsIgnoreCase("-verbose"))
+        );
     }
 }
