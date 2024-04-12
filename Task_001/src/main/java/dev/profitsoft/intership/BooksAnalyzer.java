@@ -1,7 +1,9 @@
 package dev.profitsoft.intership;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -55,8 +57,29 @@ public class BooksAnalyzer {
 
             sortedMap.forEach((key, value) -> System.out.println(key + ": " + value));
 
+            saveStatistic(sortedMap, "statistic_by_" + attributeName + ".xml");
+
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
+        }
+    }
+
+    private static void saveStatistic(Map<Object, Integer> statistic, String path) {
+        try (PrintWriter out = new PrintWriter(new FileWriter(path))) {
+            out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+
+            out.println("<statistics>");
+            for(Map.Entry<Object, Integer> entry : statistic.entrySet()) {
+                out.println("\t<item>");
+                out.println("\t\t<value>" + entry.getKey() + "</value>");
+                out.println("\t\t<count>" + entry.getValue() + "</count>");
+                out.println("\t</item>");
+            }
+            out.println("</statistics>");
+
+            System.out.println("Statistic data saved to: " + path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -113,7 +136,7 @@ public class BooksAnalyzer {
     private static void accumulateStatistic(Book book, Field entityField, Map<Object, Integer> statistic) {
         if(!book.isValidObject()) return;
 
-        System.out.println(book);
+        //System.out.println(book);
         try {
             Object fieldValue = entityField.get(book);
             if(fieldValue instanceof ArrayList<?>) {
