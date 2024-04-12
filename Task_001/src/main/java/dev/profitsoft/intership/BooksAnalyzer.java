@@ -6,12 +6,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 public class BooksAnalyzer {
+    private static final int THREAD_POOL_THREADS_COUNT = 8;
+
     public static void run(String dataFolderPath, String attributeName) {
         try {
             File folder = new File(dataFolderPath);
@@ -44,21 +49,28 @@ public class BooksAnalyzer {
                 return;
             }
 
-            // Process each file one by one
+            // Process files via thread pool
+            ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_THREADS_COUNT);
             Map<Object, Integer> statistic = new HashMap<>();
+            List<Future<Map<Object, Integer>>> results = new ArrayList<>();
             for(File file: listOfFiles) {
-                System.out.printf("Processing file: %s\n", file.getName());
-                statistic.putAll(processFile(file, bookField.get()));
+                results.add(executorService.submit(() -> processFile(file, bookField.get())));
             }
 
+            // Collect and combine results
+            for(Future<Map<Object, Integer>> result: results) {
+                statistic.putAll(result.get());
+            }
+
+            // Sort by count DESC
             Map<Object, Integer> sortedMap = statistic.entrySet().stream()
                     .sorted(Map.Entry.<Object, Integer>comparingByValue().reversed())
                     .collect(LinkedHashMap::new, (m, e) -> m.put(e.getKey(), e.getValue()), Map::putAll);
 
-            sortedMap.forEach((key, value) -> System.out.println(key + ": " + value));
-
+            // Save results
             saveStatistic(sortedMap, "statistic_by_" + attributeName + ".xml");
 
+            executorService.shutdown();
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
@@ -136,7 +148,6 @@ public class BooksAnalyzer {
     private static void accumulateStatistic(Book book, Field entityField, Map<Object, Integer> statistic) {
         if(!book.isValidObject()) return;
 
-        //System.out.println(book);
         try {
             Object fieldValue = entityField.get(book);
             if(fieldValue instanceof ArrayList<?>) {
