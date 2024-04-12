@@ -15,19 +15,27 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
 public class BooksAnalyzer {
-    private static final int THREAD_POOL_THREADS_COUNT = 8;
+    private static final int THREAD_POOL_SIZE = 1;
+    private static boolean verbose = false;
 
     public static void run(String dataFolderPath, String attributeName) {
+        run(dataFolderPath, attributeName, false);
+    }
+
+    public static void run(String dataFolderPath, String attributeName, boolean verbose) {
+        BooksAnalyzer.verbose = verbose;
+
+        long startTime = System.nanoTime();
         try {
             File folder = new File(dataFolderPath);
 
             if(!folder.exists()) {
-                System.out.printf("Folder: \"%s\" not found\n", dataFolderPath);
+                System.err.printf("Folder: \"%s\" not found\n", dataFolderPath);
                 return;
             }
 
             if(!folder.isDirectory()) {
-                System.out.printf("Specified path \"%s\" is not a folder\n", dataFolderPath);
+                System.err.printf("Specified path \"%s\" is not a folder\n", dataFolderPath);
                 return;
             }
 
@@ -37,7 +45,7 @@ public class BooksAnalyzer {
                     .findFirst();
 
             if(bookField.isEmpty()) {
-                System.out.printf("Attribute \"%s\" not found\n", attributeName);
+                System.err.printf("Attribute \"%s\" not found\n", attributeName);
                 return;
             }
             bookField.get().setAccessible(true);
@@ -45,12 +53,16 @@ public class BooksAnalyzer {
             // Get directory content, json files only
             File[] listOfFiles = folder.listFiles(e -> e.isFile() && e.getName().endsWith(".json"));
             if(listOfFiles == null) {
-                System.out.printf("Folder \"%s\" is empty.\n", dataFolderPath);
+                System.err.printf("Folder \"%s\" is empty.\n", dataFolderPath);
                 return;
             }
 
+            System.out.printf("Processing folder: %s\n", dataFolderPath);
+            System.out.printf("Attribute name: %s\n", attributeName);
+            System.out.printf("Thread pool size: %d\n", THREAD_POOL_SIZE);
+
             // Process files via thread pool
-            ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_THREADS_COUNT);
+            ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
             Map<Object, Integer> statistic = new HashMap<>();
             List<Future<Map<Object, Integer>>> results = new ArrayList<>();
             for(File file: listOfFiles) {
@@ -74,6 +86,9 @@ public class BooksAnalyzer {
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
         }
+
+        long elapsedTime = System.nanoTime() - startTime;
+        System.out.printf("Elapsed time: %d ms\n", elapsedTime / 1_000_000);
     }
 
     private static void saveStatistic(Map<Object, Integer> statistic, String path) {
@@ -100,10 +115,12 @@ public class BooksAnalyzer {
 
         JsonToken token = parser.getCurrentToken();
         if (token != JsonToken.START_OBJECT) {
-            System.out.printf("Warning: processing entry failed at %d %d, expected json object(s). Skip\n",
-                    parser.getCurrentLocation().getLineNr(),
-                    parser.getCurrentLocation().getColumnNr()
-            );
+            if(verbose) {
+                System.out.printf("Warning: processing entry failed at %d %d, expected json object(s). Skip\n",
+                        parser.getCurrentLocation().getLineNr(),
+                        parser.getCurrentLocation().getColumnNr()
+                );
+            }
             return book;
         }
 
@@ -160,7 +177,7 @@ public class BooksAnalyzer {
             }
 
         } catch (IllegalAccessException e) {
-            System.out.println("Warning: Incomplete book object. Skip.");
+            if(verbose) System.out.println("Warning: Incomplete book object. Skip.");
         }
     }
 
@@ -174,14 +191,14 @@ public class BooksAnalyzer {
 
             // Expected json array
             if(token != JsonToken.START_ARRAY) {
-                System.err.printf("Error: processing file \"%s\", expected json array\n", file.getName());
+                if(verbose) System.err.printf("Error: processing file \"%s\", expected json array\n", file.getName());
                 return statistic;
             }
 
             // Just in case if this file contains empty array
             token = parser.nextToken();
             if(token == JsonToken.END_ARRAY) {
-                System.err.printf("Error: processing file \"%s\" failed, unexpected end of array\n", file.getName());
+                if(verbose) System.err.printf("Error: processing file \"%s\" failed, unexpected end of array\n", file.getName());
                 return statistic;
             }
 
@@ -193,7 +210,7 @@ public class BooksAnalyzer {
                 token = parser.nextToken();
             }
         } catch (IOException e) {
-            System.err.println("Error: " + e.getMessage());
+            if(verbose) System.err.println("Error: " + e.getMessage());
         }
         return statistic;
     }
