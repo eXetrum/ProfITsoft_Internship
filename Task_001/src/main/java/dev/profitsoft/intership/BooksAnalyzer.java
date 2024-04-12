@@ -2,6 +2,9 @@ package dev.profitsoft.intership;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -21,6 +24,19 @@ public class BooksAnalyzer {
                 System.out.printf("Specified path \"%s\" is not a folder\n", dataFolderPath);
                 return;
             }
+
+            Class<?> bookClass = Book.class;
+            Optional<Field> field = Arrays.stream(bookClass.getDeclaredFields())
+                    .filter(e -> e.getName().equalsIgnoreCase(attributeName))
+                    .findFirst();
+
+            if(field.isEmpty()) {
+                System.out.printf("Attribute \"%s\" not found\n", attributeName);
+                return;
+            }
+
+
+
 
             // Get directory content, json files only
             File[] listOfFiles = folder.listFiles(e -> e.isFile() && e.getName().endsWith(".json"));
