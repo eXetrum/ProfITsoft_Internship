@@ -19,10 +19,10 @@ public class Main {
             return;
         }
 
-        BooksAnalyzer.run(args[0], args[1],
-                args.length > 2 && Arrays.asList(args).subList(2, args.length)
-                        .stream()
-                        .anyMatch(x -> x.equalsIgnoreCase("-verbose"))
-        );
+        boolean verbose = args.length > 2 && Arrays.asList(args).subList(2, args.length)
+                .stream()
+                .anyMatch(x -> x.equalsIgnoreCase("-verbose"));
+
+        BooksAnalyzer.run(args[0], args[1], verbose);
     }
 }
