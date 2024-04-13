@@ -73,3 +73,8 @@ java -jar target\BooksAnalyzer.jar <json folder path> <attribute name>
 	<attribute name>: title, subject, author, publish_year
 ```
 
+## Тестирование
+```shell
+mvn test
+```
+
