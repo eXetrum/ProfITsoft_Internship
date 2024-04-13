@@ -70,7 +70,9 @@ assembly.bat
 ## Запуск
 ```shell
 java -jar target\BooksAnalyzer.jar <json folder path> <attribute name>
-	<attribute name>: title, subject, author, publish_year
+	<attribute name>: title, subjects, authors, publishYear
+	[-verbose]: print debug info (optional, default value=false)
+	[-pool]: set thread pool size (optional, defaul value=10)
 ```
 
 ## Тестирование
@@ -160,4 +162,4 @@ subjects
     </tbody>
 </table>
 
-#### Thread pool of size in range [4; 8] is best choice for any attribute name 
+#### Thread pool size in range [4; 8] is best choice for any attribute name 
