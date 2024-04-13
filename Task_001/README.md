@@ -78,3 +78,86 @@ java -jar target\BooksAnalyzer.jar <json folder path> <attribute name>
 mvn test
 ```
 
+## Thread pool size
+Average time - mean of five runs with identical params
+```console
+title
+```
+<table>
+    <thead>
+        <tr>
+            <th>Num of threads</th>
+            <th>Average time (ms)</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr><td>1</td><td>403</td></tr>
+        <tr><td>2</td><td>370</td></tr>
+        <tr><td>4</td><td>353</td></tr>
+        <tr><td>8</td><td>349</td></tr>
+        <tr><td>16</td><td>373</td></tr>
+        <tr><td>32</td><td>429</td></tr>
+    </tbody>
+</table>  
+
+```console
+publishYear
+```
+<table>
+    <thead>
+        <tr>
+            <th>Num of threads</th>
+            <th>Average time (ms)</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr><td>1</td><td>331</td></tr>
+        <tr><td>2</td><td>294</td></tr>
+        <tr><td>4</td><td>289</td></tr>
+        <tr><td>8</td><td>278</td></tr>
+        <tr><td>16</td><td>295</td></tr>
+        <tr><td>32</td><td>332</td></tr>
+    </tbody>
+</table>
+
+```console
+authors
+```
+<table>
+    <thead>
+        <tr>
+            <th>Num of threads</th>
+            <th>Average time (ms)</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr><td>1</td><td>389</td></tr>
+        <tr><td>2</td><td>352</td></tr>
+        <tr><td>4</td><td>347</td></tr>
+        <tr><td>8</td><td>346</td></tr>
+        <tr><td>16</td><td>361</td></tr>
+        <tr><td>32</td><td>367</td></tr>
+    </tbody>
+</table>
+
+```console
+subjects
+```
+<table>
+    <thead>
+        <tr>
+            <th>Num of threads</th>
+            <th>Average time (ms)</th>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr><td>1</td><td>564</td></tr>
+        <tr><td>2</td><td>520</td></tr>
+        <tr><td>4</td><td>497</td></tr>
+        <tr><td>8</td><td>505</td></tr>
+        <tr><td>16</td><td>508</td></tr>
+        <tr><td>32</td><td>579</td></tr>
+    </tbody>
+</table>
+
+#### Thread pool of size in range [4; 8] is best choice for any attribute name 
