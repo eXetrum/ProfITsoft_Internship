@@ -6,14 +6,19 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class BooksAnalyzer {
-    private static final int THREAD_POOL_SIZE = 1;
+    public static final int DEFAULT_THREAD_POOL_SIZE = 10;
+    private static int threadPoolSize;
     private static boolean verbose = false;
 
     public static void run(String dataFolderPath, String attributeName) {
-        run(dataFolderPath, attributeName, false);
+        run(dataFolderPath, attributeName, DEFAULT_THREAD_POOL_SIZE, false);
+    }
+    public static void run(String dataFolderPath, String attributeName, int threadPoolSize) {
+        run(dataFolderPath, attributeName, threadPoolSize, false);
     }
 
-    public static void run(String dataFolderPath, String attributeName, boolean verbose) {
+    public static void run(String dataFolderPath, String attributeName, int threadPoolSize, boolean verbose) {
+        BooksAnalyzer.threadPoolSize = threadPoolSize > 0 ? threadPoolSize : DEFAULT_THREAD_POOL_SIZE;
         BooksAnalyzer.verbose = verbose;
 
         long startTime = System.nanoTime();
@@ -50,12 +55,12 @@ public class BooksAnalyzer {
 
             System.out.printf("Processing folder: %s\n", dataFolderPath);
             System.out.printf("Attribute name: %s\n", attributeName);
-            System.out.printf("Thread pool size: %d\n", THREAD_POOL_SIZE);
+            System.out.printf("Thread pool size: %d\n", BooksAnalyzer.threadPoolSize);
 
             Statistic statistic = new Statistic();
 
             // Process files via thread pool
-            ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+            ExecutorService executorService = Executors.newFixedThreadPool(BooksAnalyzer.threadPoolSize);
             List<Future<Statistic>> results = new ArrayList<>();
             for(File file: listOfFiles) {
                 results.add(executorService.submit(() -> processFile(file, bookField.get())));
