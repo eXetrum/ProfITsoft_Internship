@@ -13,10 +13,10 @@ import java.util.List;
 @Repository
 public interface BookRepository extends JpaRepository<BookData, String> {
 
-    @Query("SELECT book FROM BookData AS book WHERE book.author.id = :authorId")
+    @Query("SELECT book FROM BookData AS book WHERE book.author.id = :authorId ORDER BY book.title")
     Page<BookData> findByAuthorId(@Param("authorId") String authorId, Pageable pageable);
 
-    @Query("SELECT book FROM BookData AS book WHERE LOWER(book.author.name) LIKE LOWER(concat('%', :authorName, '%'))")
+    @Query("SELECT book FROM BookData AS book WHERE LOWER(book.author.name) LIKE LOWER(concat('%', :authorName, '%')) ORDER BY book.title")
     Page<BookData> findByAuthorName(@Param("authorName") String authorName, Pageable pageable);
 
     @Query("SELECT book FROM BookData AS book " +
