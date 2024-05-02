@@ -1,0 +1,38 @@
+[
+	{
+        "title": "Adolphe",
+		"genre": "NoIdea22222",
+        "author": {
+            "name": "Benjamin Constant",
+			"birthdayYear": 2011
+        },
+        "publishYear": 1844
+    },
+    {
+        "title": "20 Years at Hull House",
+        "genre": "Fiction",
+        "author": {
+            "name": "Jane Addams",
+			"birthdayYear": 1888
+        },
+        "publisYear": 1945
+    },
+    {
+        "title": "Max Ernst",
+        "genre": "Art",
+        "author": {
+			"name": "Max Ernst",
+			"birthdayYear": 1234
+		},
+        "publishYear": 1956
+    },
+	{
+        "title": "Max Super Mega Doctor Director",
+        "genre": "Super genre",
+        "author": {
+			"name": "Max",
+			"birthdayYear": 1010
+		},
+        "publishYear": 1111
+    }
+]
