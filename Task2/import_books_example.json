@@ -34,5 +34,14 @@
 			"birthdayYear": 1010
 		},
         "publishYear": 1111
+    },
+    {
+      "title": "Max Super Mega Doctor Director",
+      "genre": "Super genre",
+      "author": {
+        "name": "Max",
+        "birthdayYear": 1010
+      },
+      "publishYear": 1111
     }
 ]
