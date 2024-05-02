@@ -135,3 +135,8 @@
 4. ```console
    mvn spring-boot:run
    ```
+   
+## Інтеграційні тести
+```console
+mvn test
+```
