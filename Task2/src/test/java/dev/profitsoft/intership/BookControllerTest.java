@@ -237,4 +237,67 @@ public class BookControllerTest {
 
     }
 
+    @Test
+    public void testUpdateBookByIdNotFound() throws Exception {
+        mvc.perform(put("/api/book/random_id")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                        "title": "NEW test book",
+                        "genre": "horror",
+                        "publishYear": 1111,
+                        "authorId": "%s"
+                        }
+                        """.formatted(defaultAuthors.get(1).getId()))
+                )
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    public void testUpdateBookByIdAuthorNotFound() throws Exception {
+        String body = """
+               {
+                    "title": "test book",
+                    "genre": "fiction",
+                    "publishYear": 1999,
+                    "authorId": "%s"
+               }
+               """.formatted(defaultAuthors.get(0).getId());
+        MvcResult result = mvc.perform(post("/api/book")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body)
+                )
+                .andExpect(status().isCreated()).andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        String id = JsonPath.read(jsonResponse, "$.result");
+
+        mvc.perform(get("/api/book/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("test book"))
+                .andExpect(jsonPath("$.genre").value("fiction"))
+                .andExpect(jsonPath("$.publishYear").value("1999"))
+                .andExpect(jsonPath("$.author.name").value(defaultAuthors.get(0).getName()))
+                .andExpect(jsonPath("$.author.birthdayYear").value(defaultAuthors.get(0).getBirthdayYear()))
+                .andExpect(jsonPath("$.author.id").value(defaultAuthors.get(0).getId()));
+
+
+        mvc.perform(put("/api/book/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                        "title": "NEW test book",
+                        "genre": "horror",
+                        "publishYear": 1111,
+                        "authorId": "random_id"
+                        }
+                        """)
+                )
+                .andExpect(status().isNotFound());
+        
+    }
+
 }
