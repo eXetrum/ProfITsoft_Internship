@@ -1,0 +1,47 @@
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="create-schema" author="eXetrum">
+        <createTable tableName="author">
+            <column name="id" type="VARCHAR(64)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="author_name_unique"/>
+            </column>
+            <column name="birthday_year" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="saved_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createTable tableName="book">
+            <column name="id" type="VARCHAR(64)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="publish_year" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="genre" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="author_id" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="saved_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="book"
+                                 baseColumnNames="author_id"
+                                 constraintName="fk_book_author"
+                                 referencedTableName="author"
+                                 referencedColumnNames="id"/>
+
+    </changeSet>
+
+</databaseChangeLog>
