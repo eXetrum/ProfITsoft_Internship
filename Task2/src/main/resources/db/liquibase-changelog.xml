@@ -44,4 +44,35 @@
 
     </changeSet>
 
+
+    <changeSet id="create-default-authors" author="eXetrum">
+        <insert tableName="author">
+            <column name="id" valueComputed="gen_random_uuid()" />
+            <column name="name" value="test author #1"/>
+            <column name="birthday_year" valueNumeric="1984" />
+            <column name="saved_at" value="now()" />
+        </insert>
+
+        <insert tableName="author">
+            <column name="id" valueComputed="gen_random_uuid()" />
+            <column name="name" value="test author #2"/>
+            <column name="birthday_year" valueNumeric="2000" />
+            <column name="saved_at" value="now()" />
+        </insert>
+
+        <insert tableName="author">
+            <column name="id" valueComputed="gen_random_uuid()" />
+            <column name="name" value="test author #3"/>
+            <column name="birthday_year" valueNumeric="1111" />
+            <column name="saved_at" value="now()" />
+        </insert>
+
+        <insert tableName="author">
+            <column name="id" valueComputed="gen_random_uuid()" />
+            <column name="name" value="top secret #23"/>
+            <column name="birthday_year" valueNumeric="2023" />
+            <column name="saved_at" value="now()" />
+        </insert>
+    </changeSet>
+
 </databaseChangeLog>
