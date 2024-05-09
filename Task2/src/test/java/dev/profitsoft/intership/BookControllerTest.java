@@ -6,7 +6,6 @@ import dev.profitsoft.intership.booklibrary.data.AuthorData;
 import dev.profitsoft.intership.booklibrary.repository.AuthorRepository;
 import dev.profitsoft.intership.booklibrary.repository.BookRepository;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
