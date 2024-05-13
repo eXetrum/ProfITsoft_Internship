@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -21,8 +20,15 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    public List<BookDetailsDto> getAll() {
-        return bookService.getAllBooks();
+    public ResponseEntity<BookPaginationDto> getAll(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "5", required = false) int size) {
+
+        BookQueryDto queryDto = new BookQueryDto();
+        queryDto.setPage(page);
+        queryDto.setSize(size);
+        BookPaginationDto books = bookService.searchBooks(queryDto);
+        return ResponseEntity.ok().body(books);
     }
 
     @PostMapping
