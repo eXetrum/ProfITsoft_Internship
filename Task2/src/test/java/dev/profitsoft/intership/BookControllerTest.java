@@ -45,6 +45,9 @@ public class BookControllerTest {
     @BeforeEach
     public void beforeEach() {
         final int TOTAL_AUTHORS = 5;
+
+        bookRepository.deleteAll();
+        authorRepository.deleteAll();
         defaultAuthors.clear();
 
         for(int i = 0; i < TOTAL_AUTHORS; ++i) {
@@ -62,6 +65,61 @@ public class BookControllerTest {
     public void afterEach() {
         bookRepository.deleteAll();
         authorRepository.deleteAll();
+    }
+
+    @Test
+    public void testGetAllPaginate() throws Exception {
+        String[] titles = { "test book #1", "test book #2", "forbidden book #3", "forbidden book #4", "top secret book #5" };
+        String[] genres = { "fiction", "detective", "fiction", "detective", "horror" };
+        for(int i = 0; i < defaultAuthors.size(); ++i) {
+            mvc.perform(post("/api/book")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {
+                                    "title": "%s",
+                                    "genre": "%s",
+                                    "publishYear": 199%d,
+                                    "authorId": "%s"
+                                    }
+                                    """.formatted(titles[i], genres[i], i % 2, defaultAuthors.get(i % 2).getId()))
+                    )
+                    .andExpect(status().isCreated());
+        }
+
+        mvc.perform(get("/api/book")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(5))
+                .andExpect(jsonPath("$.totalPages").value(1));
+
+        mvc.perform(get("/api/book?size=3")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(3))
+                .andExpect(jsonPath("$.totalPages").value(2));
+
+        mvc.perform(get("/api/book?size=1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(1))
+                .andExpect(jsonPath("$.totalPages").value(5));
+
+        mvc.perform(get("/api/book?page=1&size=2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(2))
+                .andExpect(jsonPath("$.totalPages").value(3));
+
+        mvc.perform(get("/api/book?page=2&size=2")
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(1))
+                .andExpect(jsonPath("$.totalPages").value(3));
     }
 
     @Test
@@ -493,6 +551,174 @@ public class BookControllerTest {
                 .andExpect(jsonPath("$.totalPages").value(3)) // 2 + 2 + 1
                 .andExpect(jsonPath("$.list[0].title").value("test book #5"))
                 .andExpect(jsonPath("$.list[0].author.id").value(defaultAuthors.get(4).getId()));
+
+    }
+
+    @Test
+    public void testFilterMultipleCriteriaPagination() throws Exception {
+        String[] titles = { "test book #1", "test book #2", "forbidden book #3", "forbidden book #4", "top secret book #5" };
+        String[] genres = { "fiction", "detective", "fiction", "detective", "horror" };
+        for(int i = 0; i < defaultAuthors.size(); ++i) {
+            mvc.perform(post("/api/book")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {
+                                    "title": "%s",
+                                    "genre": "%s",
+                                    "publishYear": 199%d,
+                                    "authorId": "%s"
+                                    }
+                                    """.formatted(titles[i], genres[i], i % 2, defaultAuthors.get(i % 2).getId()))
+                    )
+                    .andExpect(status().isCreated());
+        }
+
+        mvc.perform(post("/api/book/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(5))
+                .andExpect(jsonPath("$.totalPages").value(1))
+
+                .andExpect(jsonPath("$.list[0].title").value("forbidden book #3"))
+                .andExpect(jsonPath("$.list[0].genre").value("fiction"))
+                .andExpect(jsonPath("$.list[0].publishYear").value("1990"))
+                .andExpect(jsonPath("$.list[0].author.id").value(defaultAuthors.get(0).getId()))
+
+                .andExpect(jsonPath("$.list[1].title").value("forbidden book #4"))
+                .andExpect(jsonPath("$.list[1].genre").value("detective"))
+                .andExpect(jsonPath("$.list[1].publishYear").value("1991"))
+                .andExpect(jsonPath("$.list[1].author.id").value(defaultAuthors.get(1).getId()))
+
+                .andExpect(jsonPath("$.list[2].title").value("test book #1"))
+                .andExpect(jsonPath("$.list[2].genre").value("fiction"))
+                .andExpect(jsonPath("$.list[2].publishYear").value("1990"))
+                .andExpect(jsonPath("$.list[2].author.id").value(defaultAuthors.get(0).getId()))
+
+                .andExpect(jsonPath("$.list[3].title").value("test book #2"))
+                .andExpect(jsonPath("$.list[3].genre").value("detective"))
+                .andExpect(jsonPath("$.list[3].publishYear").value("1991"))
+                .andExpect(jsonPath("$.list[3].author.id").value(defaultAuthors.get(1).getId()))
+
+                .andExpect(jsonPath("$.list[4].title").value("top secret book #5"))
+                .andExpect(jsonPath("$.list[4].genre").value("horror"))
+                .andExpect(jsonPath("$.list[4].publishYear").value("1990"))
+                .andExpect(jsonPath("$.list[4].author.id").value(defaultAuthors.get(0).getId()));
+
+        mvc.perform(post("/api/book/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                        "genre": "fiction",
+                        "publishYear": "1990"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(2))
+                .andExpect(jsonPath("$.totalPages").value(1))
+
+
+                .andExpect(jsonPath("$.list[0].title").value("forbidden book #3"))
+                .andExpect(jsonPath("$.list[0].genre").value("fiction"))
+                .andExpect(jsonPath("$.list[0].publishYear").value("1990"))
+                .andExpect(jsonPath("$.list[0].author.id").value(defaultAuthors.get(0).getId()))
+
+                .andExpect(jsonPath("$.list[1].title").value("test book #1"))
+                .andExpect(jsonPath("$.list[1].genre").value("fiction"))
+                .andExpect(jsonPath("$.list[1].publishYear").value("1990"))
+                .andExpect(jsonPath("$.list[1].author.id").value(defaultAuthors.get(0).getId()));
+
+        mvc.perform(post("/api/book/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                        "genre": "fiction",
+                        "publishYear": "1990",
+                        "size": "1"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(1))
+                .andExpect(jsonPath("$.totalPages").value(2))
+
+                .andExpect(jsonPath("$.list[0].title").value("forbidden book #3"))
+                .andExpect(jsonPath("$.list[0].genre").value("fiction"))
+                .andExpect(jsonPath("$.list[0].publishYear").value("1990"))
+                .andExpect(jsonPath("$.list[0].author.id").value(defaultAuthors.get(0).getId()));
+
+        mvc.perform(post("/api/book/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                        "genre": "fiction",
+                        "publishYear": "1990",
+                        "size": "1",
+                        "page": "1"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(1))
+                .andExpect(jsonPath("$.totalPages").value(2))
+
+                .andExpect(jsonPath("$.list[0].title").value("test book #1"))
+                .andExpect(jsonPath("$.list[0].genre").value("fiction"))
+                .andExpect(jsonPath("$.list[0].publishYear").value("1990"))
+                .andExpect(jsonPath("$.list[0].author.id").value(defaultAuthors.get(0).getId()));
+
+        mvc.perform(post("/api/book/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                        "genre": "horror"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+
+                .andExpect(jsonPath("$.list[0].title").value("top secret book #5"))
+                .andExpect(jsonPath("$.list[0].genre").value("horror"))
+                .andExpect(jsonPath("$.list[0].publishYear").value("1990"))
+                .andExpect(jsonPath("$.list[0].author.id").value(defaultAuthors.get(0).getId()));
+
+
+        mvc.perform(post("/api/book/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                        "genre": "horror",
+                        "authorId": "%s"
+                        }
+                        """.formatted(defaultAuthors.get(1).getId()))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(0))
+                .andExpect(jsonPath("$.totalPages").value(0));
+
+        mvc.perform(post("/api/book/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                        "genre": "horror",
+                        "authorId": "%s"
+                        }
+                        """.formatted(defaultAuthors.get(0).getId()))
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.list[0].title").value("top secret book #5"))
+                .andExpect(jsonPath("$.list[0].genre").value("horror"))
+                .andExpect(jsonPath("$.list[0].publishYear").value("1990"))
+                .andExpect(jsonPath("$.list[0].author.id").value(defaultAuthors.get(0).getId()));
 
     }
 
