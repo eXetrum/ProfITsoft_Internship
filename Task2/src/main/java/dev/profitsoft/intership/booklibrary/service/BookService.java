@@ -6,11 +6,7 @@ import dev.profitsoft.intership.booklibrary.dto.BookPaginationDto;
 import dev.profitsoft.intership.booklibrary.dto.BookQueryDto;
 import dev.profitsoft.intership.booklibrary.dto.BookSaveDto;
 
-import java.util.List;
-
 public interface BookService {
-
-    List<BookDetailsDto> getAllBooks();
 
     String createBook(BookSaveDto dto);
 
@@ -20,7 +16,7 @@ public interface BookService {
 
     void deleteBook(String id);
 
-    BookPaginationDto searchBooks(BookQueryDto dto);
+    BookPaginationDto searchBooks(BookQueryDto query);
 
     String uploadFromFile(MultipartFile multipart);
 }
