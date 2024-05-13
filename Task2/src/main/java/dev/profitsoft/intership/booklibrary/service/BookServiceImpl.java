@@ -5,22 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.profitsoft.intership.booklibrary.data.AuthorData;
 import dev.profitsoft.intership.booklibrary.data.BookData;
 import dev.profitsoft.intership.booklibrary.dto.*;
-import dev.profitsoft.intership.booklibrary.exceptions.AuthorNotFoundException;
-import dev.profitsoft.intership.booklibrary.exceptions.BookAlreadyExistsException;
-import dev.profitsoft.intership.booklibrary.exceptions.BookNotFoundException;
-import dev.profitsoft.intership.booklibrary.exceptions.ImportBooksException;
+import dev.profitsoft.intership.booklibrary.exceptions.*;
 import dev.profitsoft.intership.booklibrary.repository.AuthorRepository;
 import dev.profitsoft.intership.booklibrary.repository.BookRepository;
+import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,20 +35,13 @@ public class BookServiceImpl implements BookService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public List<BookDetailsDto> getAllBooks() {
-        return bookRepository.findAll()
-                .stream()
-                .map(BookServiceImpl::convertToDetailsDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public String createBook(BookSaveDto dto) {
         validateBook(dto);
         BookData data = new BookData();
         updateDataFromDto(data, dto);
 
-        ensureUniqueBook(data);
+        if(!isUniqueBookData(data))
+            throw new BookAlreadyExistsException();
 
         data.setId(UUID.randomUUID().toString());
         BookData savedData = bookRepository.save(data);
@@ -82,16 +75,9 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public BookPaginationDto searchBooks(BookQueryDto dto) {
-        Pageable pageable = PageRequest.of(dto.getPage(), dto.getSize());
-        Page<BookData> booksPage = null;
-        if (dto.getAuthorId() != null) {
-            booksPage = bookRepository.findByAuthorId(dto.getAuthorId(), pageable);
-        } else if (dto.getAuthorName() != null) {
-            booksPage = bookRepository.findByAuthorName(dto.getAuthorName(), pageable);
-        } else {
-            booksPage = bookRepository.findByAuthorId("", pageable);
-        }
+    public BookPaginationDto searchBooks(BookQueryDto queryDto) {
+        Pageable pageable = PageRequest.of(queryDto.getPage(), queryDto.getSize());
+        Page<BookData> booksPage = bookRepository.findAll(createBookSpecification(queryDto), pageable);
         return convertToPaginationDto(booksPage);
     }
 
@@ -121,19 +107,34 @@ public class BookServiceImpl implements BookService {
     }
 
     //// Utils
-    private void ensureUniqueBook(BookData book) {
-        List<BookData> exists = bookRepository.findByFullDescription(
-                book.getTitle(),
-                book.getGenre(),
-                book.getPublishYear(),
-                book.getAuthor().getName(),
-                book.getAuthor().getBirthdayYear()
-        );
+    private Specification<BookData> createBookSpecification(BookQueryDto queryDto) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-        if(exists != null && !exists.isEmpty()) {
-            throw new BookAlreadyExistsException();
-        }
+            if (queryDto.getAuthorId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("author").get("id"), queryDto.getAuthorId()));
+            } else if (queryDto.getAuthorName() != null) {
+                predicates.add(criteriaBuilder.like(root.get("author").get("name"), "%" + queryDto.getAuthorName() + "%"));
+            }
+
+            if (queryDto.getTitle() != null) {
+                predicates.add(criteriaBuilder.like(root.get("title"), "%" + queryDto.getTitle() + "%"));
+            }
+
+            if (queryDto.getGenre() != null) {
+                predicates.add(criteriaBuilder.like(root.get("genre"), "%" + queryDto.getGenre() + "%"));
+            }
+
+            if (queryDto.getPublishYear() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("publishYear"), queryDto.getPublishYear()));
+            }
+
+            query.orderBy(criteriaBuilder.asc(root.get("title")));
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
     }
+
     // Returns true if specified book is complete object (object that ready to push into repo)
     private boolean isCompleteBookData(BookData book) {
         return book.getPublishYear() != null
@@ -146,14 +147,13 @@ public class BookServiceImpl implements BookService {
 
     // Returns true if specified book is unique (no duplicates allowed)
     private boolean isUniqueBookData(BookData book) {
-        List<BookData> queryResult = bookRepository.findByFullDescription(
+        return !bookRepository.existsBookDataByFullDescription(
                 book.getTitle(),
                 book.getGenre(),
                 book.getPublishYear(),
                 book.getAuthor().getName(),
                 book.getAuthor().getBirthdayYear()
         );
-        return queryResult == null || queryResult.isEmpty();
     }
 
     private BookData convertFromUpload(BookUploadDto dto) {
@@ -208,7 +208,7 @@ public class BookServiceImpl implements BookService {
     private static void validateBook(BookSaveDto dto) {
         if (dto.getPublishYear() != null
                 && dto.getPublishYear() > LocalDate.now().getYear()) {
-            throw new IllegalArgumentException("publishYear should be before now");
+            throw new BookInvalidPublishYearException();
         }
     }
 
