@@ -4,6 +4,7 @@ import com.jayway.jsonpath.JsonPath;
 import dev.profitsoft.intership.booklibrary.BookLibraryApplication;
 import dev.profitsoft.intership.booklibrary.repository.AuthorRepository;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,6 +27,11 @@ public class AuthorControllerTest {
 
     @Autowired
     private AuthorRepository authorRepository;
+
+    @BeforeEach
+    public void beforeEach() {
+        authorRepository.deleteAll();
+    }
 
     @AfterEach
     public void afterEach() {
@@ -108,12 +114,12 @@ public class AuthorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(5))
-                .andExpect(jsonPath("$[0].name").value("test author #1"))
-                .andExpect(jsonPath("$[1].name").value("test author #2"))
-                .andExpect(jsonPath("$[2].name").value("test author #3"))
-                .andExpect(jsonPath("$[3].name").value("test author #4"))
-                .andExpect(jsonPath("$[4].name").value("test author #5"));
+                .andExpect(jsonPath("$.list.length()").value(5))
+                .andExpect(jsonPath("$.list[0].name").value("test author #1"))
+                .andExpect(jsonPath("$.list[1].name").value("test author #2"))
+                .andExpect(jsonPath("$.list[2].name").value("test author #3"))
+                .andExpect(jsonPath("$.list[3].name").value("test author #4"))
+                .andExpect(jsonPath("$.list[4].name").value("test author #5"));
     }
 
     @Test
@@ -272,5 +278,143 @@ public class AuthorControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testSearchAuthorsByNameWithPagination() throws Exception {
+        final int TOTAL_RECORDS = 5;
+        for(int i = 0; i < TOTAL_RECORDS; ++i) {
+            String body = """
+                    {
+                         "name": "test author #%d",
+                         "birthdayYear": 200%d
+                    }
+                    """.formatted(i + 1, i);
+
+            mvc.perform(post("/api/author")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body)
+                    )
+                    .andExpect(status().isCreated());
+        }
+
+        for(int i = 0; i < TOTAL_RECORDS * 2 - 1; ++i) {
+            String body = """
+                    {
+                         "name": "secret author #%d",
+                         "birthdayYear": 200%d
+                    }
+                    """.formatted(i + 1, i);
+
+            mvc.perform(post("/api/author")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(body)
+                    )
+                    .andExpect(status().isCreated());
+        }
+
+        mvc.perform(post("/api/author/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "name": "test"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(5))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.list[0].name").value("test author #1"))
+                .andExpect(jsonPath("$.list[1].name").value("test author #2"))
+                .andExpect(jsonPath("$.list[2].name").value("test author #3"))
+                .andExpect(jsonPath("$.list[3].name").value("test author #4"))
+                .andExpect(jsonPath("$.list[4].name").value("test author #5"));
+
+        mvc.perform(post("/api/author/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "name": "secret"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(5))
+                .andExpect(jsonPath("$.totalPages").value(2))
+                .andExpect(jsonPath("$.list[0].name").value("secret author #1"))
+                .andExpect(jsonPath("$.list[1].name").value("secret author #2"))
+                .andExpect(jsonPath("$.list[2].name").value("secret author #3"))
+                .andExpect(jsonPath("$.list[3].name").value("secret author #4"))
+                .andExpect(jsonPath("$.list[4].name").value("secret author #5"));
+
+        mvc.perform(post("/api/author/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "name": "secret",
+                          "page": "1"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(4))
+                .andExpect(jsonPath("$.totalPages").value(2))
+                .andExpect(jsonPath("$.list[0].name").value("secret author #6"))
+                .andExpect(jsonPath("$.list[1].name").value("secret author #7"))
+                .andExpect(jsonPath("$.list[2].name").value("secret author #8"))
+                .andExpect(jsonPath("$.list[3].name").value("secret author #9"));
+
+        mvc.perform(post("/api/author/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "name": "secret",
+                          "size": "10"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(9))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.list[0].name").value("secret author #1"))
+                .andExpect(jsonPath("$.list[1].name").value("secret author #2"))
+                .andExpect(jsonPath("$.list[2].name").value("secret author #3"))
+                .andExpect(jsonPath("$.list[3].name").value("secret author #4"))
+                .andExpect(jsonPath("$.list[4].name").value("secret author #5"))
+                .andExpect(jsonPath("$.list[5].name").value("secret author #6"))
+                .andExpect(jsonPath("$.list[6].name").value("secret author #7"))
+                .andExpect(jsonPath("$.list[7].name").value("secret author #8"))
+                .andExpect(jsonPath("$.list[8].name").value("secret author #9"));
+
+
+        mvc.perform(post("/api/author/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "name": "secret",
+                          "size": "2"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(2))
+                .andExpect(jsonPath("$.totalPages").value(5))
+                .andExpect(jsonPath("$.list[0].name").value("secret author #1"));
+
+        mvc.perform(post("/api/author/_list")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                          "name": "secret",
+                          "size": "2",
+                          "page": "4"
+                        }
+                        """)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.list.length()").value(1))
+                .andExpect(jsonPath("$.totalPages").value(5))
+                .andExpect(jsonPath("$.list[0].name").value("secret author #9"));
+
     }
 }
