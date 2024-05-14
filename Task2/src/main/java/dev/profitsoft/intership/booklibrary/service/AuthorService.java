@@ -1,13 +1,13 @@
 package dev.profitsoft.intership.booklibrary.service;
 
 import dev.profitsoft.intership.booklibrary.dto.AuthorDetailsDto;
+import dev.profitsoft.intership.booklibrary.dto.AuthorPaginationDto;
+import dev.profitsoft.intership.booklibrary.dto.AuthorQueryDto;
 import dev.profitsoft.intership.booklibrary.dto.AuthorSaveDto;
-
-import java.util.List;
 
 public interface AuthorService {
 
-    List<AuthorDetailsDto> getAllAuthors();
+    AuthorPaginationDto searchAuthors(AuthorQueryDto query);
 
     String createAuthor(AuthorSaveDto dto);
 
