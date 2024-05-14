@@ -1,17 +1,15 @@
 package dev.profitsoft.intership.booklibrary.controller;
 
-import dev.profitsoft.intership.booklibrary.dto.AuthorDetailsDto;
-import dev.profitsoft.intership.booklibrary.dto.AuthorSaveDto;
-import dev.profitsoft.intership.booklibrary.dto.RestResponse;
+import dev.profitsoft.intership.booklibrary.dto.*;
 import dev.profitsoft.intership.booklibrary.service.AuthorService;
-import dev.profitsoft.intership.booklibrary.service.BookService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
+@CrossOrigin(origins = "*")
 @Slf4j
 @RestController
 @RequestMapping("/api/author")
@@ -19,14 +17,22 @@ import java.util.List;
 public class AuthorController {
     private final AuthorService authorService;
 
+    @GetMapping
+    public ResponseEntity<AuthorPaginationDto> getAll(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "5", required = false) int size
+    ) {
+
+        AuthorQueryDto queryDto = new AuthorQueryDto();
+        queryDto.setPage(page);
+        queryDto.setSize(size);
+        AuthorPaginationDto authors = authorService.searchAuthors(queryDto);
+        return ResponseEntity.ok().body(authors);
+    }
+
     @GetMapping("/{id}")
     public AuthorDetailsDto getAuthorById(@PathVariable("id") String id) {
         return authorService.getAuthor(id);
-    }
-
-    @GetMapping
-    public List<AuthorDetailsDto> getAll() {
-        return authorService.getAllAuthors();
     }
 
     @PostMapping
@@ -49,4 +55,11 @@ public class AuthorController {
         authorService.deleteAuthor(id);
         return new RestResponse("OK");
     }
+
+    @PostMapping("/_list")
+    public ResponseEntity<AuthorPaginationDto> searchAuthorsPaginate(@RequestBody AuthorQueryDto authorQueryDto) {
+        AuthorPaginationDto authors = authorService.searchAuthors(authorQueryDto);
+        return ResponseEntity.ok().body(authors);
+    }
+
 }
