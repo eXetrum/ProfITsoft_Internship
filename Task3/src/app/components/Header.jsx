@@ -146,6 +146,44 @@ function Header({
           </Link>
         </div>
         <div className={classes.toolBarContainerRight}>
+          <Link
+            to={{
+              pathname: `${pagesURLs[pages.authorListPage]}`,
+            }}
+          >
+            <Button
+              colorVariant="header"
+              variant="text"
+            >
+              <Typography
+                color="inherit"
+                variant="subtitle"
+              >
+                <strong>
+                  {formatMessage({ id: 'page.authors' })}
+                </strong>
+              </Typography>
+            </Button>
+          </Link>
+          <Link
+            to={{
+              pathname: `${pagesURLs[pages.bookListPage]}`,
+            }}
+          >
+            <Button
+              colorVariant="header"
+              variant="text"
+            >
+              <Typography
+                color="inherit"
+                variant="subtitle"
+              >
+                <strong>
+                  {formatMessage({ id: 'page.books' })}
+                </strong>
+              </Typography>
+            </Button>
+          </Link>
           {actualOrderedRightPanelItemTypes.map((itemType) => (
             <>
               {itemType === rightPanelItemTypes.USER_NAME && (
