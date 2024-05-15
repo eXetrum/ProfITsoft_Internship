@@ -190,6 +190,7 @@ public class BookServiceImpl implements BookService {
                         .map(BookServiceImpl::convertToDetailsDto)
                         .collect(Collectors.toList())
                 )
+                .totalItems(booksPage.getTotalElements())
                 .totalPages(booksPage.getTotalPages())
                 .build();
     }

@@ -9,7 +9,7 @@ public interface AuthorService {
 
     AuthorPaginationDto searchAuthors(AuthorQueryDto query);
 
-    String createAuthor(AuthorSaveDto dto);
+    AuthorDetailsDto createAuthor(AuthorSaveDto dto);
 
     AuthorDetailsDto getAuthor(String id);
 

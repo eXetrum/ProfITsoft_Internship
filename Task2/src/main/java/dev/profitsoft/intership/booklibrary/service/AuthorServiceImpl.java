@@ -3,6 +3,7 @@ package dev.profitsoft.intership.booklibrary.service;
 import dev.profitsoft.intership.booklibrary.dto.*;
 import dev.profitsoft.intership.booklibrary.exceptions.AuthorAlreadyExistsException;
 import dev.profitsoft.intership.booklibrary.exceptions.AuthorNotFoundException;
+import dev.profitsoft.intership.booklibrary.exceptions.AuthorInvalidBirthdayYearException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import dev.profitsoft.intership.booklibrary.data.AuthorData;
@@ -36,14 +37,14 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public String createAuthor(AuthorSaveDto dto) {
+    public AuthorDetailsDto createAuthor(AuthorSaveDto dto) {
         validateAuthor(dto);
         AuthorData data = new AuthorData();
         updateDataFromDto(data, dto);
         data.setId(UUID.randomUUID().toString());
         try {
             AuthorData savedData = authorRepository.save(data);
-            return savedData.getId();
+            return convertToDetailsDto(savedData);
         } catch (Exception e) {
             log.error(e.getMessage());
             if (e.getMessage().contains("duplicate key"))
@@ -115,6 +116,7 @@ public class AuthorServiceImpl implements AuthorService {
                         .map(AuthorServiceImpl::convertToDetailsDto)
                         .collect(Collectors.toList())
                 )
+                .totalItems(authorsPage.getTotalElements())
                 .totalPages(authorsPage.getTotalPages())
                 .build();
     }
@@ -131,7 +133,7 @@ public class AuthorServiceImpl implements AuthorService {
     private static void validateAuthor(AuthorSaveDto dto) {
         if (dto.getBirthdayYear() != null
                 && dto.getBirthdayYear() > LocalDate.now().getYear()) {
-            throw new IllegalArgumentException("birthYear should be before now");
+            throw new AuthorInvalidBirthdayYearException();
         }
     }
 
