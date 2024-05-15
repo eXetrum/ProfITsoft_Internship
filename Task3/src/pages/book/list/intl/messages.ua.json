@@ -1,3 +1,8 @@
 {
-  "title": "Це сторінка списку книг"
+  "title": "Це сторінка списку книг",
+  "column.title": "Назва",
+  "column.genre": "Жанр",
+  "column.publishYear": "Рік видання",
+  "button.create": "Додати книгу",
+  "confirm.delete": "Підтвердить видалення"
 }

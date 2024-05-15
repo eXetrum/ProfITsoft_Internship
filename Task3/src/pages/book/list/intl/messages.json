@@ -1,3 +1,8 @@
 {
-  "title": "This is books list page"
+  "title": "This is books list page",
+  "column.title": "Title",
+  "column.genre": "Genre",
+  "column.publishYear": "Publish Year",
+  "button.create": "Create Book",
+  "confirm.delete": "Confirm book deletion"
 }
