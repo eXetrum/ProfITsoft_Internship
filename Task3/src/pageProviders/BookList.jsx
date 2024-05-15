@@ -1,4 +1,4 @@
-import BookListPage from 'pages/book-list';
+import BookListPage from 'pages/book/list';
 import React from 'react';
 
 import PageContainer from './components/PageContainer';

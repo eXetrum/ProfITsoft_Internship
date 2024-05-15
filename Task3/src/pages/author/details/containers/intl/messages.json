@@ -1,0 +1,12 @@
+{
+  "create.title": "This is author creation page",
+  "edit.title": "This is author edit page",
+  "field.name": "Name",
+  "field.birthdayYear": "Birthday yeaar",
+  "button.create": "Create",
+  "button.save": "Save",
+  "button.cancel": "Cancel",
+  "op.error": "Error",
+  "op.success.create": "Author successfully created",
+  "op.success.save": "Author successfully updated"
+}

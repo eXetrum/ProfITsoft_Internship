@@ -1,0 +1,7 @@
+{
+  "title": "Це сторінка списку авторів",
+  "column.name": "Ім'я Автору",
+  "column.birthdayYear": "Рік Народження",
+  "button.create": "Додати автора",
+  "confirm.delete": "Підтвердить видалення"
+}

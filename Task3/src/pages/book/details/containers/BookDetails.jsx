@@ -2,7 +2,7 @@ import { useIntl } from 'react-intl';
 import React from 'react';
 import Typography from 'components/Typography';
 
-function Authors() {
+function BookDetails() {
   const { formatMessage } = useIntl();
 
   return (
@@ -12,4 +12,4 @@ function Authors() {
   );
 }
 
-export default Authors;
+export default BookDetails;

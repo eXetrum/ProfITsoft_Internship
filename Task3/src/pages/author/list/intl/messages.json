@@ -1,0 +1,7 @@
+{
+  "title": "This is authors list page",
+  "column.name": "Author Name",
+  "column.birthdayYear": "Birthday Year",
+  "button.create": "Create Author",
+  "confirm.delete": "Confirm entry deletion"
+}

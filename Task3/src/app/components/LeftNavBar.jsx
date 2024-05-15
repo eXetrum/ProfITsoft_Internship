@@ -72,8 +72,9 @@ function LeftNavBar() {
         onClose={onClose}
       >
         <div className={classes.menuHeaderSpace} />
-        {filteredItems.map(menuItem => (
+        {filteredItems.map((menuItem, idx) => (
           <Link
+            key={idx}
             onClick={onClose}
             to={{
               pathname: menuItem.link,

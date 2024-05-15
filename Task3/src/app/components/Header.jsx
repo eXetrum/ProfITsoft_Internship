@@ -184,8 +184,8 @@ function Header({
               </Typography>
             </Button>
           </Link>
-          {actualOrderedRightPanelItemTypes.map((itemType) => (
-            <>
+          {actualOrderedRightPanelItemTypes.map((itemType, idx) => (
+            <div key={idx}>
               {itemType === rightPanelItemTypes.USER_NAME && (
                 <div ref={userMenuRef}>
                   <Hover
@@ -279,7 +279,7 @@ function Header({
                   </strong>
                 </Typography>
               )}
-            </>
+            </div>
           ))}
         </div>
         <Menu
@@ -293,6 +293,7 @@ function Header({
         >
           {orderedInterfaceLangs.map(lang => (
             <MenuItem
+              key={lang}
               onClick={() => {
                 changePage({
                   locationSearch: {

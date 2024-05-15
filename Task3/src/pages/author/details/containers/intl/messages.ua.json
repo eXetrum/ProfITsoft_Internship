@@ -1,0 +1,12 @@
+{
+  "create.title": "Це сторінка створення сутності автор",
+  "edit.title": "Це сторінка редагування сутності автор",
+  "field.name": "Ім'я",
+  "field.birthdayYear": "Рік народження",
+  "button.create": "Створити",
+  "button.save": "Зберегти",
+  "button.cancel": "Скасувати",
+  "op.error": "Помилка",
+  "op.success.create": "Запис успішно створено",
+  "op.success.save": "Зміни до запису успішно внесені"
+}

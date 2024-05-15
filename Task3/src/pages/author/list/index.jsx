@@ -1,16 +1,13 @@
 import React, { useMemo } from 'react';
 import IntlProvider from 'misc/providers/IntlProvider';
 import useLocationSearch from 'misc/hooks/useLocationSearch';
-
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react'
 import getMessages from './intl';
 import AuthorList from './containers/AuthorList';
+import configureStore from '../redux';
 
-import { applyMiddleware, createStore } from 'redux';
-import { Provider } from 'react-redux';
-import { thunk } from 'redux-thunk';
-import rootReducer from './reducers/authors';
-
-const store = createStore(rootReducer, applyMiddleware(thunk));
+const { store, persistor } = configureStore();
 
 function Index(props) {
   const {
@@ -19,9 +16,11 @@ function Index(props) {
   const messages = useMemo(() => getMessages(lang), [lang]);
   return (
     <Provider store={store}>
-      <IntlProvider messages={messages}>
-        <AuthorList {...props} />
-      </IntlProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <IntlProvider messages={messages}>
+          <AuthorList {...props} />
+        </IntlProvider>
+      </PersistGate>
     </Provider>
   );
 }

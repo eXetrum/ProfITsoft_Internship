@@ -3,7 +3,7 @@ import IntlProvider from 'misc/providers/IntlProvider';
 import useLocationSearch from 'misc/hooks/useLocationSearch';
 
 import getMessages from './intl';
-import Author from './containers/Author';
+import BookDetails from './containers/BookDetails';
 
 function Index(props) {
   const {
@@ -12,7 +12,7 @@ function Index(props) {
   const messages = useMemo(() => getMessages(lang), [lang]);
   return (
     <IntlProvider messages={messages}>
-      <Author {...props} />
+      <BookDetails {...props} />
     </IntlProvider>
   );
 }

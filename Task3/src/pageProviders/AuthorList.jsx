@@ -1,4 +1,4 @@
-import AuthorListPage from 'pages/author-list';
+import AuthorListPage from 'pages/author/list';
 import React from 'react';
 
 import PageContainer from './components/PageContainer';

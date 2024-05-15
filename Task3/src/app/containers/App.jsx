@@ -15,7 +15,9 @@ import DefaultPage from 'pageProviders/Default';
 import Loading from 'components/Loading';
 import LoginPage from 'pageProviders/Login';
 import AuthorListPage from 'pageProviders/AuthorList';
+import AuthorDetailsPage from 'pageProviders/AuthorDetails';
 import BookListPage from 'pageProviders/BookList';
+import BookDetailsPage from 'pageProviders/BookDetails';
 import PageContainer from 'pageProviders/components/PageContainer';
 import pageURLs from 'constants/pagesURLs';
 import SecretPage from 'pageProviders/Secret';
@@ -82,8 +84,16 @@ function App() {
                       path={`${pageURLs[pages.authorListPage]}`}
                     />
                     <Route
+                      element={<AuthorDetailsPage />}
+                      path={`${pageURLs[pages.authorDetailsPage]}/:authorId?`}
+                    />
+                    <Route
                       element={<BookListPage />}
                       path={`${pageURLs[pages.bookListPage]}`}
+                    />
+                    <Route
+                      element={<BookDetailsPage />}
+                      path={`${pageURLs[pages.bookDetailsPage]}/:bookId?`}
                     />
                     <Route
                       element={<SecretPage />}
