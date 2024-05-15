@@ -8,7 +8,7 @@ import dev.profitsoft.intership.booklibrary.dto.BookSaveDto;
 
 public interface BookService {
 
-    String createBook(BookSaveDto dto);
+    BookDetailsDto createBook(BookSaveDto dto);
 
     BookDetailsDto getBook(String id);
 
