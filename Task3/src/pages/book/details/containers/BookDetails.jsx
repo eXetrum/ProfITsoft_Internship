@@ -46,20 +46,24 @@ function BookDetails() {
   const navigate = useNavigate();
   
   const book = useSelector(state => state.book);
-  const authors = [
-    {id: '429833b5-5b74-4e47-b9b4-49cab29d384d', name: 'test'}, 
-    {id: '983c59fd-f773-42c1-a1a1-0f23c839a232', name: 'test2'}
-  ];//useSelector(state => state.authors);
-  
+  const authors = useSelector(state => state.authors);
+
   const isLoading = useSelector(state => state.isLoading);
   const isSuccess = useSelector(state => state.isSuccess);
   const isError = useSelector(state => state.isError);
   const error = useSelector(state => state.error);
 
-  const [selectedAuthor, setSelectedAuthor] = useState(authors[0]);
+  const [selectedAuthor, setSelectedAuthor] = useState(null);
   
   const isCreateMode = useMemo(() => bookId === undefined, [bookId]);
   const isEditMode = useMemo(() => !isCreateMode, [isCreateMode]);
+  const isAuthorsListReady = useMemo( () => authors.length > 0, [authors]);
+  const isAuthorSelected = useMemo( () => selectedAuthor !== null && selectedAuthor !== undefined, [selectedAuthor]);
+  const isAuthorSelectedSync = useMemo( () => isAuthorSelected && book.authorId !== '' && book.authorId === selectedAuthor.id, [isAuthorSelected, selectedAuthor, book]);
+  const isBookReady = useMemo( () => {
+    return book.title !== '' && book.genre !== '' && book.publishYear !== '' 
+      && authors.find(item => item.id === book.authorId) !== undefined
+  }, [book, authors]);  
 
   const onFieldChange = useCallback( (fieldName) => 
     ({ target }) => {
@@ -68,21 +72,47 @@ function BookDetails() {
     [dispatch]
   );
 
+  useEffect( () => { dispatch(actionsBook.resetBook()) }, [dispatch]);
+
+  useEffect(() => {
+    if(isAuthorsListReady && isEditMode) {
+      const author = authors.find(item => item.id === book.authorId);
+      setSelectedAuthor(author);
+    }
+  }, [isEditMode, isAuthorsListReady, isAuthorSelected, book, authors, selectedAuthor, setSelectedAuthor])
+
+  useEffect(() => {
+    if(isAuthorsListReady && isCreateMode) {
+      // Default selection
+      if(!isAuthorSelected) {
+        setSelectedAuthor(authors[0]);
+      } else if(!isAuthorSelectedSync) {
+        dispatch(actionsBook.bookFieldChange( { 'authorId': selectedAuthor.id }))
+      }
+    }
+  }, [isCreateMode, isAuthorsListReady, isAuthorSelected, isAuthorSelectedSync, authors, selectedAuthor, setSelectedAuthor, dispatch])
+
   useEffect( () => {
     let timeoutId = null;
     if(isSuccess && isCreateMode) {
       dispatch(actionsBook.resetBook());
+      if(isAuthorsListReady) {
+        setSelectedAuthor(authors[0]);
+        dispatch(actionsBook.bookFieldChange( { authorId: authors[0].id }));
+      }
       timeoutId = setTimeout(()=>{
         dispatch(actionsBook.resetSuccess());
-       }, 4000)
+       }, 3500)
     }
+
     return () => {
-      if(timeoutId !== null)
-        clearTimeout(timeoutId);
+      if(timeoutId !== null) clearTimeout(timeoutId);
     }
-  }, [isSuccess, isCreateMode, dispatch]);
+
+  }, [isSuccess, isCreateMode, isAuthorsListReady, authors, setSelectedAuthor, dispatch]);
 
   useEffect( () => {
+    dispatch(actionsBook.fetchAllAuthors())
     if(isEditMode) {
       dispatch(actionsBook.fetchBookById(bookId));
     }
@@ -111,20 +141,22 @@ function BookDetails() {
           onChange={onFieldChange('publishYear')}
           value={book.publishYear}
         />
-        <DropDown 
-          items={authors}
-          value={selectedAuthor.id}
-          label={ formatMessage({ id: 'field.author' }) }
-          title={ formatMessage({ id: 'field.author' }) }
-          onChange={(event) => {
-            const id = event.target.value;
-            const author = authors.find(item => item.id === id);
-            if(author) {
-              setSelectedAuthor(author);
-              onFieldChange('authorId')(event);
-            }
-          }}
-        />
+        {!isLoading && isAuthorsListReady && isAuthorSelected && (
+          <DropDown 
+            items={authors}
+            value={selectedAuthor.id}
+            label={ formatMessage({ id: 'field.authorName' }) }
+            title={ formatMessage({ id: 'field.authorName' }) }
+            onChange={(event) => {
+              const id = event.target.value;
+              const author = authors.find(item => item.id === id);
+              if(author) {
+                setSelectedAuthor(author);
+                onFieldChange('authorId')(event);
+              }
+            }}
+          />
+        )}
         
         {isError && (
           <Typography color="error">
@@ -140,7 +172,7 @@ function BookDetails() {
 
         <div className={classes.buttons}>
           <Button
-              disabled={!book.title || !book.genre || !book.publishYear || !book.authorId}
+              disabled={!isBookReady}
               isLoading={isLoading}
               onClick={() => {
                 if(isCreateMode)

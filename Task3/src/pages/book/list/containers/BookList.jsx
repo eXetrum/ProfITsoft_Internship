@@ -105,6 +105,7 @@ function BookList() {
     { field: 'title', headerName: formatMessage({ id: 'column.title' }), flex: 1 },
     { field: 'genre', headerName: formatMessage({ id: 'column.genre' }), width: 240, flex: 1 },
     { field: 'publishYear', headerName: formatMessage({ id: 'column.publishYear' }), width: 240, flex: 1 },
+    { field: 'authorName', headerName: formatMessage({ id: 'column.authorName' }), width: 240, flex: 1 },
     {
       field: "actions",
       type: "actions",
@@ -150,7 +151,7 @@ function BookList() {
         disableRowSelectionOnClick
         disableColumnFilter
         loading={isLoading}        
-        rows={books}
+        rows={books.map(({author, ...rest}) =>  ({...rest, authorName: author.name }) ) }
         columns={columns}
         paginationMode="server"
         sortingMode="server"

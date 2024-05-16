@@ -4,7 +4,7 @@
   "field.title": "Title",
   "field.genre": "Genre",
   "field.publishYear": "Publish yeaar",
-  "field.author": "Author",
+  "field.authorName": "Author",
   "button.create": "Create",
   "button.save": "Save",
   "button.cancel": "Cancel",

@@ -1,6 +1,7 @@
 import {
     RESET_SUCCESS,
     RESET_ERROR,
+    RESET_AUTHOR,
     CHANGE_CURRENT_PAGE,
     CHANGE_PAGE_SIZE,
     AUTHOR_FIELD_CHANGE,
@@ -39,7 +40,8 @@ const initialState = {
 const authorReducer = (state = initialState, action) => {
     switch (action.type) {
         case RESET_SUCCESS: return {...state, isSuccess: false }
-        case RESET_ERROR: return {...state, isError: false, error: '' }        
+        case RESET_ERROR: return {...state, isError: false, error: '' }   
+        case RESET_AUTHOR: return {...state, author: initialAuthorState }   
         case CHANGE_CURRENT_PAGE: return { ...state, currentPage: action.payload }
         case CHANGE_PAGE_SIZE: return { ...state, pageSize: action.payload }
         case AUTHOR_FIELD_CHANGE: return { 

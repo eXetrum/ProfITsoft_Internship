@@ -1,12 +1,16 @@
 import {
     RESET_SUCCESS,
     RESET_ERROR,
+    RESET_BOOK,
     CHANGE_CURRENT_PAGE,
     CHANGE_PAGE_SIZE,
     BOOK_FIELD_CHANGE,
     FETCH_BOOKS_PAGE_PENDING,
     FETCH_BOOKS_PAGE_FULFILLED,
     FETCH_BOOKS_PAGE_REJECTED,
+    FETCH_ALL_AUTHORS_PENDING,
+    FETCH_ALL_AUTHORS_FULFILLED,
+    FETCH_ALL_AUTHORS_REJECTED,
     CREATE_BOOK_PENDING,
     CREATE_BOOK_FULFILLED,
     CREATE_BOOK_REJECTED,
@@ -28,11 +32,12 @@ const initialState = {
     isSuccess: false,
     isError: false,
     books: [],
+    authors: [], // all authors for create/edit actions
     currentPage: 0,
     pageSize: 5,
     totalItems: 0,
     totalPages: 0,
-    error: '',
+    error: '',    
     book: initialBookState,
 };
 
@@ -40,6 +45,7 @@ const bookReducer = (state = initialState, action) => {
     switch (action.type) {
         case RESET_SUCCESS: return {...state, isSuccess: false }
         case RESET_ERROR: return {...state, isError: false, error: '' }        
+        case RESET_BOOK: return {...state, book: initialBookState }
         case CHANGE_CURRENT_PAGE: return { ...state, currentPage: action.payload }
         case CHANGE_PAGE_SIZE: return { ...state, pageSize: action.payload }
         case BOOK_FIELD_CHANGE: return { 
@@ -69,6 +75,27 @@ const bookReducer = (state = initialState, action) => {
             isError: true,
             books: [],
             book: initialBookState,
+            error: action.payload.error,
+        }
+
+        case FETCH_ALL_AUTHORS_PENDING: return {
+            ...state,
+            isLoading: true,
+            isError: false,
+            authors: [],
+            error: ''
+        }
+        case FETCH_ALL_AUTHORS_FULFILLED: return {
+            ...state,
+            isLoading: false,
+            isError: false,
+            authors: action.payload.authors,
+        }
+        case FETCH_ALL_AUTHORS_REJECTED: return {
+            ...state,
+            isLoading: false,
+            isError: true,
+            authors: [],
             error: action.payload.error,
         }
 

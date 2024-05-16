@@ -6,13 +6,6 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 export default function DropDown({ onChange, value, label, title, items, ...props}) {
-  /*const [age, setAge] = React.useState('');
-
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  };*/
-  console.log('DropDown: ', items);
-
   return (
     <Box sx={{ minWidth: 120 }}>
       <FormControl fullWidth>

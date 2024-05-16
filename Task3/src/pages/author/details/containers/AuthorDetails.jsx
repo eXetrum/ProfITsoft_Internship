@@ -64,15 +64,19 @@ function AuthorDetails() {
     let timeoutId = null;
     if(isSuccess && isCreateMode) {
       dispatch(actionsAuthor.resetAuthor());
-      timeoutId = setTimeout(()=>{
+      timeoutId = setTimeout(() => {
         dispatch(actionsAuthor.resetSuccess());
-       }, 4000)
+       }, 3500)
     }
+
     return () => {
-      if(timeoutId !== null)
+      if(timeoutId != null)
         clearTimeout(timeoutId);
     }
+
   }, [isSuccess, isCreateMode, dispatch]);
+
+  useEffect( () => { dispatch(actionsAuthor.resetAuthor()) }, [dispatch]);
 
   useEffect( () => {
     if(isEditMode) {

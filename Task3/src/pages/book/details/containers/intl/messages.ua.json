@@ -4,7 +4,7 @@
   "field.title": "Назва",
   "field.genre": "Жанр",
   "field.publishYear": "Рік видавництва",
-  "field.author": "Автор",
+  "field.authorName": "Автор",
   "button.create": "Створити",
   "button.save": "Зберегти",
   "button.cancel": "Скасувати",

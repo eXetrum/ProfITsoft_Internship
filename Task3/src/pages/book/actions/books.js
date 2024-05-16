@@ -3,13 +3,16 @@ import config from '../../../config';
 import {
     RESET_SUCCESS,
     RESET_ERROR,
+    RESET_BOOK,
     CHANGE_CURRENT_PAGE,
     CHANGE_PAGE_SIZE,
-    BOOK_FIELD_CHANGE,
-    RESET_BOOK,
+    BOOK_FIELD_CHANGE,    
     FETCH_BOOKS_PAGE_PENDING,
     FETCH_BOOKS_PAGE_FULFILLED,
-    FETCH_BOOKS_PAGE_REJECTED,    
+    FETCH_BOOKS_PAGE_REJECTED,  
+    FETCH_ALL_AUTHORS_PENDING,
+    FETCH_ALL_AUTHORS_FULFILLED,
+    FETCH_ALL_AUTHORS_REJECTED,  
     CREATE_BOOK_PENDING,
     CREATE_BOOK_FULFILLED,
     CREATE_BOOK_REJECTED,
@@ -35,12 +38,19 @@ const fetchBooksPagePending = () => ({ type: FETCH_BOOKS_PAGE_PENDING });
 const fetchBooksPageFulfilled = ({ books, totalItems, totalPages }) => ({ type: FETCH_BOOKS_PAGE_FULFILLED, payload: { books, totalItems, totalPages } });
 const fetchBooksPageRejected = (error) => ({ type: FETCH_BOOKS_PAGE_REJECTED, payload: { error } });
 
+const fetchAllAuthorsPending = () => ({ type: FETCH_ALL_AUTHORS_PENDING });
+const fetchAllAuthorsFulfilled = (authors) => ({ type: FETCH_ALL_AUTHORS_FULFILLED, payload: { authors } });
+const fetchAllAuthorsRejected = (error) => ({ type: FETCH_ALL_AUTHORS_REJECTED, payload: { error } });
+
 const createBookPending = (book) => ({ type: CREATE_BOOK_PENDING, payload: { book } });
 const createBookFulfilled = (book) => ({ type: CREATE_BOOK_FULFILLED, payload: { book } });
 const createBookRejected = (error) => ({ type: CREATE_BOOK_REJECTED, payload: { error } });
 
 const fetchBookByIdPending = () => ({ type: FETCH_BOOK_BY_ID_PENDING });
-const fetchBookByIdFulfilled = (book) => ({ type: FETCH_BOOK_BY_ID_FULFILLED, payload: { book } });
+const fetchBookByIdFulfilled = (book) => {
+    console.log('fetchBookByIdFulfilled: ', book);
+    return ({ type: FETCH_BOOK_BY_ID_FULFILLED, payload: { book } });
+};
 const fetchBookByIdRejected = (error) => ({ type: FETCH_BOOK_BY_ID_REJECTED, payload: { error } });
 
 const updateBookByIdPending = () => ({ type: UPDATE_BOOK_BY_ID_PENDING });
@@ -65,6 +75,26 @@ const fetchBooksPage = ({ currentPage, pageSize }) => (dispatch) => {
         });
 };
 
+const fetchAllAuthors = () => (dispatch) => {
+    const { BOOKS_LIBRARY_SERVICE } = config;
+    dispatch(fetchAllAuthorsPending());
+    
+    return axios.get(`${BOOKS_LIBRARY_SERVICE}/author`)
+        .then( ({ list, totalPages }) => {
+            const iteratePages = [];
+            for(let page = 1; page < totalPages; ++page) {
+                iteratePages.push(
+                    axios.get(`${BOOKS_LIBRARY_SERVICE}/author?page=${page}`)
+                )
+            }
+
+            axios.all(iteratePages)
+                .then(chunks => dispatch(fetchAllAuthorsFulfilled([...list, ...chunks.map(item => item.list).flat(1)])) )
+                .catch( error => dispatch(fetchAllAuthorsRejected(error.message)) )
+        })
+        .catch( error => dispatch(fetchAllAuthorsRejected(error.message)) )
+};
+
 const createBook = (book) => (dispatch) => {
     const { BOOKS_LIBRARY_SERVICE } = config;
     dispatch(createBookPending(book));
@@ -76,8 +106,9 @@ const createBook = (book) => (dispatch) => {
 const fetchBookById = (id) => (dispatch) => {
     const { BOOKS_LIBRARY_SERVICE } = config;
     dispatch(fetchBookByIdPending());
+
     return axios.get(`${BOOKS_LIBRARY_SERVICE}/book/${id}`)
-        .then( book => dispatch(fetchBookByIdFulfilled(book)))
+        .then( ({author, ...book}) => dispatch(fetchBookByIdFulfilled({ ...book, authorId: author.id })) )
         .catch( error => dispatch(fetchBookByIdRejected(error.message)) );
 };
 
@@ -105,6 +136,7 @@ const actions = {
     bookFieldChange,
     resetBook,
     fetchBooksPage,
+    fetchAllAuthors,
     createBook,
     fetchBookById,
     updateBookById,
