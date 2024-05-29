@@ -11,5 +11,6 @@ import java.util.List;
 @Jacksonized
 public class BookPaginationDto {
     private List<BookDetailsDto> list;
-    private int totalPages;
+    private Long totalItems;
+    private Integer totalPages;
 }

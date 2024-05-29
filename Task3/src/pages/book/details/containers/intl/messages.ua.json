@@ -1,0 +1,14 @@
+{
+  "create.title": "Це сторінка створення сутності книга",
+  "edit.title": "Це сторінка редагування сутності книга",
+  "field.title": "Назва",
+  "field.genre": "Жанр",
+  "field.publishYear": "Рік видавництва",
+  "field.authorName": "Автор",
+  "button.create": "Створити",
+  "button.save": "Зберегти",
+  "button.cancel": "Скасувати",
+  "op.error": "Помилка",
+  "op.success.create": "Запис успішно створено",
+  "op.success.save": "Зміни до запису успішно внесені"
+}

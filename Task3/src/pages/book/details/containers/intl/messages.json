@@ -1,0 +1,14 @@
+{
+  "create.title": "This is book creation page",
+  "edit.title": "This is book edit page",
+  "field.title": "Title",
+  "field.genre": "Genre",
+  "field.publishYear": "Publish yeaar",
+  "field.authorName": "Author",
+  "button.create": "Create",
+  "button.save": "Save",
+  "button.cancel": "Cancel",
+  "op.error": "Error",
+  "op.success.create": "Book successfully created",
+  "op.success.save": "Book successfully updated"
+}

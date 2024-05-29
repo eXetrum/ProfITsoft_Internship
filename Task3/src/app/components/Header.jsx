@@ -146,8 +146,46 @@ function Header({
           </Link>
         </div>
         <div className={classes.toolBarContainerRight}>
-          {actualOrderedRightPanelItemTypes.map((itemType) => (
-            <>
+          <Link
+            to={{
+              pathname: `${pagesURLs[pages.authorListPage]}`,
+            }}
+          >
+            <Button
+              colorVariant="header"
+              variant="text"
+            >
+              <Typography
+                color="inherit"
+                variant="subtitle"
+              >
+                <strong>
+                  {formatMessage({ id: 'page.authors' })}
+                </strong>
+              </Typography>
+            </Button>
+          </Link>
+          <Link
+            to={{
+              pathname: `${pagesURLs[pages.bookListPage]}`,
+            }}
+          >
+            <Button
+              colorVariant="header"
+              variant="text"
+            >
+              <Typography
+                color="inherit"
+                variant="subtitle"
+              >
+                <strong>
+                  {formatMessage({ id: 'page.books' })}
+                </strong>
+              </Typography>
+            </Button>
+          </Link>
+          {actualOrderedRightPanelItemTypes.map((itemType, idx) => (
+            <div key={idx}>
               {itemType === rightPanelItemTypes.USER_NAME && (
                 <div ref={userMenuRef}>
                   <Hover
@@ -241,7 +279,7 @@ function Header({
                   </strong>
                 </Typography>
               )}
-            </>
+            </div>
           ))}
         </div>
         <Menu
@@ -255,6 +293,7 @@ function Header({
         >
           {orderedInterfaceLangs.map(lang => (
             <MenuItem
+              key={lang}
               onClick={() => {
                 changePage({
                   locationSearch: {

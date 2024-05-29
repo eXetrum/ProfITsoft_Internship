@@ -1,0 +1,9 @@
+{
+  "title": "This is books list page",
+  "column.title": "Title",
+  "column.genre": "Genre",
+  "column.publishYear": "Publish Year",
+  "column.authorName": "Author",
+  "button.create": "Create Book",
+  "confirm.delete": "Confirm book deletion"
+}

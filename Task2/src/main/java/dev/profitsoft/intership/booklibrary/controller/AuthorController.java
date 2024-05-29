@@ -37,9 +37,8 @@ public class AuthorController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RestResponse createAuthor(@Valid @RequestBody AuthorSaveDto dto) {
-        String id = authorService.createAuthor(dto);
-        return new RestResponse(id);
+    public AuthorDetailsDto createAuthor(@Valid @RequestBody AuthorSaveDto dto) {
+        return authorService.createAuthor(dto);
     }
 
     @PutMapping("/{id}")

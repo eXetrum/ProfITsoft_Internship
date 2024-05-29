@@ -34,9 +34,8 @@ public class BookController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RestResponse createBook(@Valid @RequestBody BookSaveDto dto) {
-        String id = bookService.createBook(dto);
-        return new RestResponse(id);
+    public BookDetailsDto createBook(@Valid @RequestBody BookSaveDto dto) {
+        return bookService.createBook(dto);
     }
 
     @GetMapping("/{id}")

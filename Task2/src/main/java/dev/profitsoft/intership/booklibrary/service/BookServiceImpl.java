@@ -35,7 +35,7 @@ public class BookServiceImpl implements BookService {
     private final ObjectMapper objectMapper;
 
     @Override
-    public String createBook(BookSaveDto dto) {
+    public BookDetailsDto createBook(BookSaveDto dto) {
         validateBook(dto);
         BookData data = new BookData();
         updateDataFromDto(data, dto);
@@ -44,8 +44,8 @@ public class BookServiceImpl implements BookService {
             throw new BookAlreadyExistsException();
 
         data.setId(UUID.randomUUID().toString());
-        BookData savedData = bookRepository.save(data);
-        return savedData.getId();
+
+        return convertToDetailsDto(bookRepository.save(data));
     }
 
     @Override
@@ -190,6 +190,7 @@ public class BookServiceImpl implements BookService {
                         .map(BookServiceImpl::convertToDetailsDto)
                         .collect(Collectors.toList())
                 )
+                .totalItems(booksPage.getTotalElements())
                 .totalPages(booksPage.getTotalPages())
                 .build();
     }

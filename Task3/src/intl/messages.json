@@ -4,6 +4,8 @@
   "page.default": "Home",
   "page.login": "Login",
   "page.secret": "Secret Page",
+  "page.authors": "Authors",
+  "page.books": "Books",
   "signIn": "Sign In",
   "signOut": "Sign Out"
 }
